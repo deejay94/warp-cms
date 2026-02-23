@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Platform {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  topics    Topic[]
+  generatedIdeas GeneratedIdea[] @relation("SuggestedPlatform")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  topics    Topic[]
+  generatedIdeas GeneratedIdea[] @relation("SuggestedCategory")
+}
+
+model Topic {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  platformId  String
+  platform    Platform    @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  status      String      @default("NOT_STARTED")
+  isPublished Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  completedAt DateTime?
+  generatedFrom GeneratedIdea? @relation("AcceptedIdea")
+}
+
+model GeneratedIdea {
+  id                    String    @id @default(cuid())
+  content               String
+  suggestedPlatformId   String?
+  suggestedPlatform     Platform? @relation("SuggestedPlatform", fields: [suggestedPlatformId], references: [id], onDelete: SetNull)
+  suggestedCategoryId   String?
+  suggestedCategory     Category? @relation("SuggestedCategory", fields: [suggestedCategoryId], references: [id], onDelete: SetNull)
+  isAccepted            Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  acceptedAsTopicId     String?   @unique
+  acceptedAsTopic       Topic?    @relation("AcceptedIdea", fields: [acceptedAsTopicId], references: [id], onDelete: SetNull)
+}
