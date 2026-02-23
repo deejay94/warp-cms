@@ -17,7 +17,7 @@ async function main() {
   console.log('✓ Platforms created');
 
   // Create default categories
-  const categories = ['Career Advice', 'Thought Leadership', 'Resources'];
+  const categories = ['Career Advice', 'Thought Leadership', 'Resources', 'Misc'];
   for (const categoryName of categories) {
     await prisma.category.upsert({
       where: { name: categoryName },
